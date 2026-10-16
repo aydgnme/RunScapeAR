@@ -49,6 +49,13 @@
             ReferencedContainer = "container:RunScapeAR.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "STRAVA_ACCESS_TOKEN"
+            value = "d388fa6159e28ccb9d4ed60fd8067239c354702d"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
