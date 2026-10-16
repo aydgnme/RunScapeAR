@@ -1,0 +1,19 @@
+--swiftversion 6
+
+--indent 4
+--indentcase false
+--maxwidth 120
+
+--commas inline
+--semicolons never
+--trimwhitespace always
+
+--ifdef indent
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+
+--self remove
+--stripunusedargs closure-only
+
+--disable redundantClosure

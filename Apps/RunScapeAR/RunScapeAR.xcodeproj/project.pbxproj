@@ -6,6 +6,11 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DC2FEE883082391400176CA2 /* Platform in Frameworks */ = {isa = PBXBuildFile; productRef = DC2FEE873082391400176CA2 /* Platform */; };
+		DC7EB8953080E5B200C673F6 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = DC7EB8943080E5B200C673F6 /* Domain */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DCE4C820307011D8003530B6 /* RunScapeAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunScapeAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -22,6 +27,8 @@
 		DCE4C81D307011D8003530B6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				DC7EB8953080E5B200C673F6 /* Domain in Frameworks */,
+				DC2FEE883082391400176CA2 /* Platform in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -60,6 +67,10 @@
 				DCE4C822307011D8003530B6 /* RunScapeAR */,
 			);
 			name = RunScapeAR;
+			packageProductDependencies = (
+				DC7EB8943080E5B200C673F6 /* Domain */,
+				DC2FEE873082391400176CA2 /* Platform */,
+			);
 			productName = RunScapeAR;
 			productReference = DCE4C820307011D8003530B6 /* RunScapeAR.app */;
 			productType = "com.apple.product-type.application";
@@ -88,6 +99,10 @@
 			);
 			mainGroup = DCE4C817307011D8003530B6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DC7EB8933080E5B200C673F6 /* XCLocalSwiftPackageReference "../../Packages/Domain" */,
+				DC2FEE863082391400176CA2 /* XCLocalSwiftPackageReference "../../Packages/Platform" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DCE4C821307011D8003530B6 /* Products */;
 			projectDirPath = "";
@@ -246,6 +261,7 @@
 				DEVELOPMENT_TEAM = 3T6P4XJ28F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -278,6 +294,7 @@
 				DEVELOPMENT_TEAM = 3T6P4XJ28F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -320,6 +337,28 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		DC2FEE863082391400176CA2 /* XCLocalSwiftPackageReference "../../Packages/Platform" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/Platform;
+		};
+		DC7EB8933080E5B200C673F6 /* XCLocalSwiftPackageReference "../../Packages/Domain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/Domain;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DC2FEE873082391400176CA2 /* Platform */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Platform;
+		};
+		DC7EB8943080E5B200C673F6 /* Domain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Domain;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DCE4C818307011D8003530B6 /* Project object */;
 	validationLevel = 1;
