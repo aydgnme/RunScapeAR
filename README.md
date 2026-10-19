@@ -7,6 +7,8 @@
   <img src="https://img.shields.io/badge/Architecture-Clean%20Architecture-green" alt="Clean Architecture">
 </p>
 
+[![CI](https://github.com/aydgnme/RunScapeAR/actions/workflows/ci.yml/badge.svg)](https://github.com/aydgnme/RunScapeAR/actions/workflows/ci.yml)
+
 RunScape AR is a native iOS application that transforms Strava routes into interactive 3D models and augmented reality experiences.
 
 A route fetched from Strava is converted from geographic coordinates into local 3D geometry, normalized for tabletop visualization, rendered with RealityKit, and optionally placed on a real-world surface using ARKit.
