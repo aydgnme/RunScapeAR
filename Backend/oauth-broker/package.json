@@ -1,0 +1,12 @@
+{
+  "name": "runscapear-oauth-broker",
+  "version": "1.0.0",
+  "description": "Lightweight OAuth token broker for RunScape AR. Keeps STRAVA_CLIENT_SECRET server-side.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

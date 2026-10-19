@@ -290,6 +290,33 @@ A valid `STRAVA_ACCESS_TOKEN` must also be provided through the local environmen
 
 RunScape AR authenticates with Strava using OAuth 2.0. Tokens are stored securely in the iOS Keychain and refreshed automatically when expired.
 
+The `client_secret` never leaves the server. The iOS app talks to a lightweight OAuth broker that holds the secret and forwards token requests to Strava.
+
+```text
+iPhone App                 OAuth Broker              Strava API
+    │                          │                         │
+    ├── POST /token ──────────►│                         │
+    │   { client_id, code }    ├── + client_secret ─────►│
+    │                          │◄── token ───────────────┤
+    │◄── token ────────────────┤                         │
+    │                          │                         │
+    ├── POST /refresh ────────►│                         │
+    │   { client_id,           ├── + client_secret ─────►│
+    │     refresh_token }      │◄── token ───────────────┤
+    │◄── token ────────────────┤                         │
+```
+
+### OAuth Broker
+
+The broker lives in `Backend/oauth-broker/`. It is a zero-dependency Node.js server.
+
+```bash
+cd Backend/oauth-broker
+STRAVA_CLIENT_SECRET=<your-secret> npm start
+```
+
+The broker runs on port 3000 by default (override with `PORT`).
+
 ### OAuth Setup
 
 Register a Strava API application at [strava.com/settings/api](https://www.strava.com/settings/api) and configure:
@@ -300,7 +327,7 @@ Provide the following through Xcode Scheme environment variables:
 
 ```text
 STRAVA_CLIENT_ID
-STRAVA_CLIENT_SECRET
+OAUTH_BROKER_URL        # default: http://localhost:3000
 ```
 
 ### Development Shortcut
@@ -315,7 +342,7 @@ When `STRAVA_ACCESS_TOKEN` is set, the app bypasses OAuth and uses it directly.
 
 ### Security
 
-Credentials must never be committed to the repository.
+The `client_secret` is held only by the OAuth broker and is never embedded in the iOS binary.
 
 Do not commit:
 
@@ -352,6 +379,7 @@ Implemented:
 - [x] SwiftLint / SwiftFormat
 - [x] Unit test suite
 - [x] Opt-in Strava integration tests
+- [x] Server-side OAuth broker (client_secret off device)
 
 Planned:
 

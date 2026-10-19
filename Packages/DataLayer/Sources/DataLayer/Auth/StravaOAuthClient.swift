@@ -4,10 +4,6 @@ public final class StravaOAuthClient: Sendable {
     private let httpClient: any HTTPClient
     private let config: StravaOAuthConfig
 
-    private let tokenURL = URL(
-        string: "https://www.strava.com/oauth/token"
-    )!
-
     public init(
         httpClient: any HTTPClient,
         config: StravaOAuthConfig
@@ -21,12 +17,11 @@ public final class StravaOAuthClient: Sendable {
     ) async throws -> StravaToken {
         let body = [
             "client_id": config.clientID,
-            "client_secret": config.clientSecret,
-            "code": code,
-            "grant_type": "authorization_code"
+            "code": code
         ]
 
-        return try await postTokenRequest(body)
+        let url = config.brokerURL.appendingPathComponent("token")
+        return try await postTokenRequest(body, to: url)
     }
 
     public func refreshToken(
@@ -34,23 +29,23 @@ public final class StravaOAuthClient: Sendable {
     ) async throws -> StravaToken {
         let body = [
             "client_id": config.clientID,
-            "client_secret": config.clientSecret,
-            "refresh_token": refreshToken,
-            "grant_type": "refresh_token"
+            "refresh_token": refreshToken
         ]
 
-        return try await postTokenRequest(body)
+        let url = config.brokerURL.appendingPathComponent("refresh")
+        return try await postTokenRequest(body, to: url)
     }
 
     private func postTokenRequest(
-        _ body: [String: String]
+        _ body: [String: String],
+        to url: URL
     ) async throws -> StravaToken {
         let jsonData = try JSONSerialization.data(
             withJSONObject: body
         )
 
         let request = HTTPRequest(
-            url: tokenURL,
+            url: url,
             method: .post,
             headers: [
                 "Content-Type": "application/json",

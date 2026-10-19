@@ -16,13 +16,15 @@ struct RunScapeARApp: App {
         let httpClient = URLSessionHTTPClient()
         self.httpClient = httpClient
 
+        let brokerURLString = ProcessInfo.processInfo.environment[
+            "OAUTH_BROKER_URL"
+        ] ?? "http://localhost:3000"
+
         let config = StravaOAuthConfig(
             clientID: ProcessInfo.processInfo.environment[
                 "STRAVA_CLIENT_ID"
             ] ?? "",
-            clientSecret: ProcessInfo.processInfo.environment[
-                "STRAVA_CLIENT_SECRET"
-            ] ?? ""
+            brokerURL: URL(string: brokerURLString)!
         )
 
         oauthConfig = config

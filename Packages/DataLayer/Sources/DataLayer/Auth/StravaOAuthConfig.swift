@@ -2,18 +2,18 @@ import Foundation
 
 public struct StravaOAuthConfig: Sendable {
     public let clientID: String
-    public let clientSecret: String
+    public let brokerURL: URL
     public let redirectURI: String
     public let scopes: String
 
     public init(
         clientID: String,
-        clientSecret: String,
+        brokerURL: URL,
         redirectURI: String = "runscapear://oauth/callback",
         scopes: String = "read,read_all,activity:read_all"
     ) {
         self.clientID = clientID
-        self.clientSecret = clientSecret
+        self.brokerURL = brokerURL
         self.redirectURI = redirectURI
         self.scopes = scopes
     }

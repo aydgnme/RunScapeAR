@@ -1,5 +1,6 @@
 import DataLayer
 import Domain
+import Foundation
 
 enum PreviewData {
     static let trackPoints: [TrackPoint] = [
@@ -79,7 +80,7 @@ enum PreviewFactory {
         let httpClient = URLSessionHTTPClient()
         let config = StravaOAuthConfig(
             clientID: "preview",
-            clientSecret: "preview"
+            brokerURL: URL(string: "http://localhost:3000")!
         )
         let oauthClient = StravaOAuthClient(
             httpClient: httpClient,
