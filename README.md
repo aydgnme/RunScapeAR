@@ -1,8 +1,35 @@
 # RunScape AR
 
-RunScape AR is a native iOS application that transforms Strava routes into interactive 3D and augmented reality experiences.
+<p align="left">
+  <img src="https://img.shields.io/badge/Swift-6-orange?logo=swift" alt="Swift 6">
+  <img src="https://img.shields.io/badge/iOS-17%2B-black?logo=apple" alt="iOS 17+">
+  <img src="https://img.shields.io/badge/ARKit-RealityKit-blue" alt="ARKit + RealityKit">
+  <img src="https://img.shields.io/badge/Architecture-Clean%20Architecture-green" alt="Clean Architecture">
+</p>
 
-Users can browse their Strava routes, inspect them as interactive 3D models, and place the route on a real-world surface using ARKit and RealityKit.
+RunScape AR is a native iOS application that transforms Strava routes into interactive 3D models and augmented reality experiences.
+
+A route fetched from Strava is converted from geographic coordinates into local 3D geometry, normalized for tabletop visualization, rendered with RealityKit, and optionally placed on a real-world surface using ARKit.
+
+## Demo
+
+### Strava Routes
+
+Browse routes loaded directly from the authenticated Strava account.
+
+![Strava Routes](Docs/Screenshots/routes-list.png)
+
+### Interactive 3D Route
+
+Routes are converted from geographic coordinates into normalized local 3D geometry and rendered with RealityKit.
+
+![3D Route Preview](Docs/Screenshots/route-3d-preview.png)
+
+### Augmented Reality
+
+The same route geometry can be placed on a detected real-world horizontal surface using ARKit.
+
+![AR Route Placement](Docs/Screenshots/ar-route-placement.png)
 
 ## Features
 
@@ -34,6 +61,48 @@ Users can browse their Strava routes, inspect them as interactive 3D models, and
 ## Architecture
 
 RunScape AR follows a modular Clean Architecture approach.
+
+```mermaid
+flowchart TD
+    App[RunScapeAR App]
+
+    RoutesView[RoutesView]
+    RoutesVM[RoutesViewModel]
+    DetailVM[RouteDetailViewModel]
+
+    GetRoutes[GetRoutesUseCase]
+    GetRoute[GetRouteUseCase]
+
+    Repository[RouteRepository]
+    StravaRepo[StravaRouteRepository]
+    StravaClient[StravaClient]
+    StravaAPI[Strava API]
+
+    SceneBuilder[RouteSceneBuilder]
+    Projector[TrackPointProjector]
+    Normalizer[RouteNormalizer]
+    Segments[RouteSegmentBuilder]
+    RealityKit[RealityKitRouteFactory]
+
+    App --> RoutesView
+    RoutesView --> RoutesVM
+    RoutesView --> DetailVM
+
+    RoutesVM --> GetRoutes
+    DetailVM --> GetRoute
+
+    GetRoutes --> Repository
+    GetRoute --> Repository
+    Repository --> StravaRepo
+    StravaRepo --> StravaClient
+    StravaClient --> StravaAPI
+
+    DetailVM --> SceneBuilder
+    SceneBuilder --> Projector
+    Projector --> Normalizer
+    Normalizer --> Segments
+    Segments --> RealityKit
+```
 
 ```text
 RunScapeAR/
@@ -116,6 +185,22 @@ Responsibilities include:
 - 3D geometry generation
 - RealityKit rendering
 - AR route scene construction
+
+## 3D Route Pipeline
+
+```mermaid
+flowchart LR
+    A[Strava Streams] --> B[TrackPoint]
+    B --> C[TrackPointProjector]
+    C --> D[LocalPoint3D]
+    D --> E[RouteNormalizer]
+    E --> F[RouteSegmentBuilder]
+    F --> G[RouteSegment]
+    G --> H[RealityKitRouteFactory]
+    H --> I[RealityKit Entity]
+    I --> J[3D Preview]
+    I --> K[AR Placement]
+```
 
 ## Application Flow
 
