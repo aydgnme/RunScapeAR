@@ -1,10 +1,3 @@
-//
-//  RoutesViewModel.swift
-//  RunScapeAR
-//
-//  Created by Mert Ioan Aydogan on 16/10/2026.
-//
-
 import Domain
 import Observation
 
@@ -38,9 +31,14 @@ final class RoutesViewModel {
         do {
             routes = try await getRoutes.execute()
         } catch {
-            errorMessage = String(
-                describing: error
-            )
+            errorMessage = StravaDisplayError(error)
+                .userMessage
         }
+    }
+
+    func retry() async {
+        routes = []
+        errorMessage = nil
+        await load()
     }
 }

@@ -1,10 +1,3 @@
-//
-//  ARRouteCameraView.swift
-//  RunScapeAR
-//
-//  Created by Mert Ioan Aydogan on 16/10/2026.
-//
-
 import ARKit
 import Domain
 import Platform
@@ -16,11 +9,13 @@ struct ARRouteCameraView: UIViewRepresentable {
     let points: [TrackPoint]
 
     @Binding var instruction: String
+    @Binding var isPlaced: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
             points: points,
-            instruction: $instruction
+            instruction: $instruction,
+            isPlaced: $isPlaced
         )
     }
 
@@ -68,7 +63,9 @@ struct ARRouteCameraView: UIViewRepresentable {
     func updateUIView(
         _ uiView: ARView,
         context: Context
-    ) {}
+    ) {
+        context.coordinator.handleReset()
+    }
 
     static func dismantleUIView(
         _ uiView: ARView,
@@ -83,14 +80,18 @@ struct ARRouteCameraView: UIViewRepresentable {
 
         private let points: [TrackPoint]
         private var instruction: Binding<String>
-        private var routeWasPlaced = false
+        private var isPlaced: Binding<Bool>
+        private var currentAnchor: AnchorEntity?
+        private var pendingReset = false
 
         init(
             points: [TrackPoint],
-            instruction: Binding<String>
+            instruction: Binding<String>,
+            isPlaced: Binding<Bool>
         ) {
             self.points = points
             self.instruction = instruction
+            self.isPlaced = isPlaced
         }
 
         @objc
@@ -98,7 +99,7 @@ struct ARRouteCameraView: UIViewRepresentable {
             _ gesture: UITapGestureRecognizer
         ) {
             guard
-                !routeWasPlaced,
+                !isPlaced.wrappedValue,
                 let arView
             else {
                 return
@@ -115,12 +116,25 @@ struct ARRouteCameraView: UIViewRepresentable {
                     alignment: .horizontal
                 ).first
             else {
+                instruction.wrappedValue =
+                    "No surface detected. Try again."
                 return
             }
 
             placeRoute(
                 using: result
             )
+        }
+
+        func handleReset() {
+            guard
+                !isPlaced.wrappedValue,
+                currentAnchor != nil
+            else {
+                return
+            }
+
+            removeRoute()
         }
 
         private func placeRoute(
@@ -148,10 +162,26 @@ struct ARRouteCameraView: UIViewRepresentable {
                 anchor
             )
 
-            routeWasPlaced = true
+            currentAnchor = anchor
+            isPlaced.wrappedValue = true
 
             instruction.wrappedValue =
                 "Route placed"
+        }
+
+        private func removeRoute() {
+            guard let arView, let anchor = currentAnchor else {
+                return
+            }
+
+            arView.scene.removeAnchor(
+                anchor
+            )
+
+            currentAnchor = nil
+
+            instruction.wrappedValue =
+                "Tap a surface to place the route"
         }
     }
 }

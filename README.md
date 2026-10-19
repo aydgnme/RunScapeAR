@@ -35,16 +35,17 @@ The same route geometry can be placed on a detected real-world horizontal surfac
 
 ## Features
 
-- Strava route integration
-- Strava activity integration
+- Strava OAuth authentication
+- Secure Keychain token storage with automatic refresh
+- Strava route and activity integration
 - Route and activity stream decoding
-- Interactive 3D route preview
-- Augmented Reality route placement
+- Route elevation statistics (ascent, descent, gradient, altitude range)
+- Interactive 3D route preview with orbit and zoom
+- Augmented Reality route placement with reposition support
 - Elevation-aware route geometry
-- Pan and pinch camera controls
-- Clean Architecture
-- Swift Package Manager modularization
+- Clean Architecture with Swift Package Manager modularization
 - Unit and opt-in integration tests
+- GitHub Actions CI
 - SwiftLint and SwiftFormat quality gates
 
 ## Tech Stack
@@ -287,17 +288,34 @@ A valid `STRAVA_ACCESS_TOKEN` must also be provided through the local environmen
 
 ## Strava Configuration
 
-RunScape AR communicates with the Strava API.
+RunScape AR authenticates with Strava using OAuth 2.0. Tokens are stored securely in the iOS Keychain and refreshed automatically when expired.
 
-Credentials must never be committed to the repository.
+### OAuth Setup
 
-For local development, provide:
+Register a Strava API application at [strava.com/settings/api](https://www.strava.com/settings/api) and configure:
+
+- **Authorization Callback Domain**: `runscapear`
+
+Provide the following through Xcode Scheme environment variables:
+
+```text
+STRAVA_CLIENT_ID
+STRAVA_CLIENT_SECRET
+```
+
+### Development Shortcut
+
+For local development without OAuth, you can provide a manual token:
 
 ```text
 STRAVA_ACCESS_TOKEN
 ```
 
-through Xcode Scheme environment variables or your local shell.
+When `STRAVA_ACCESS_TOKEN` is set, the app bypasses OAuth and uses it directly.
+
+### Security
+
+Credentials must never be committed to the repository.
 
 Do not commit:
 
@@ -323,21 +341,24 @@ Implemented:
 - [x] Route and activity stream parsing
 - [x] Interactive 3D route preview
 - [x] AR route placement
+- [x] AR route reposition
+- [x] Route elevation statistics
+- [x] Route detail UI with statistics
+- [x] Strava OAuth login
+- [x] Keychain token storage
+- [x] Automatic token refresh
+- [x] User-facing error messages with retry
+- [x] GitHub Actions CI
 - [x] SwiftLint / SwiftFormat
 - [x] Unit test suite
 - [x] Opt-in Strava integration tests
 
 Planned:
 
-- [ ] Strava OAuth login
-- [ ] Keychain token storage
-- [ ] Automatic token refresh
-- [ ] Route placement reset/reposition
-- [ ] AR interaction improvements
-- [ ] Route statistics overlay
-- [ ] Elevation and gradient visualization
-- [ ] Activity replay
+- [ ] Activity list and detail UI
+- [ ] Route gradient visualization (color-coded segments)
 - [ ] MapKit route visualization
+- [ ] Activity replay
 
 ## Security
 

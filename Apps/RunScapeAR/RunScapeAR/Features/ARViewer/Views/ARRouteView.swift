@@ -1,10 +1,3 @@
-//
-//  ARRouteView.swift
-//  RunScapeAR
-//
-//  Created by Mert Ioan Aydogan on 16/10/2026.
-//
-
 import Domain
 import SwiftUI
 
@@ -13,25 +6,47 @@ struct ARRouteView: View {
 
     @State private var instruction =
         "Point at a flat surface and tap"
+    @State private var isPlaced = false
 
     var body: some View {
         ZStack(alignment: .top) {
             ARRouteCameraView(
                 points: points,
-                instruction: $instruction
+                instruction: $instruction,
+                isPlaced: $isPlaced
             )
             .ignoresSafeArea()
 
-            Text(instruction)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    .ultraThinMaterial,
-                    in: Capsule()
-                )
-                .padding(.top, 16)
+            VStack(spacing: 12) {
+                Text(instruction)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(
+                        .ultraThinMaterial,
+                        in: Capsule()
+                    )
+
+                if isPlaced {
+                    Button {
+                        isPlaced = false
+                    } label: {
+                        Label(
+                            "Reposition Route",
+                            systemImage: "arrow.counterclockwise"
+                        )
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(
+                            .ultraThinMaterial,
+                            in: Capsule()
+                        )
+                    }
+                }
+            }
+            .padding(.top, 16)
         }
     }
 }

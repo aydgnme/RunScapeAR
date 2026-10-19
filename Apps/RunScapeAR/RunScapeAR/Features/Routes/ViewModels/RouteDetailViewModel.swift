@@ -1,10 +1,3 @@
-//
-//  RouteDetailViewModel.swift
-//  RunScapeAR
-//
-//  Created by Mert Ioan Aydogan on 16/10/2026.
-//
-
 import Domain
 import Observation
 
@@ -13,8 +6,10 @@ import Observation
 final class RouteDetailViewModel {
     private let routeID: String
     private let getRoute: GetRouteUseCase
+    private let elevationAnalyzer = ElevationAnalyzer()
 
     private(set) var route: Route?
+    private(set) var statistics: RouteStatistics?
     private(set) var isLoading = false
     private(set) var errorMessage: String?
 
@@ -42,13 +37,29 @@ final class RouteDetailViewModel {
         }
 
         do {
-            route = try await getRoute.execute(
+            let loaded = try await getRoute.execute(
                 id: routeID
             )
-        } catch {
-            errorMessage = String(
-                describing: error
+
+            route = loaded
+            statistics = elevationAnalyzer.analyze(
+                points: loaded.points
             )
+        } catch {
+            errorMessage = userMessage(for: error)
         }
+    }
+
+    func retry() async {
+        route = nil
+        statistics = nil
+        errorMessage = nil
+        await load()
+    }
+
+    private func userMessage(
+        for error: Error
+    ) -> String {
+        StravaDisplayError(error).userMessage
     }
 }
