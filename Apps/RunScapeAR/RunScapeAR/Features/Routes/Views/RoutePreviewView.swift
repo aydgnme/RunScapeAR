@@ -166,3 +166,9 @@ struct RoutePreviewView: UIViewRepresentable {
         }
     }
 }
+
+#Preview {
+    RoutePreviewView(
+        points: PreviewData.trackPoints
+    )
+}

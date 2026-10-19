@@ -185,3 +185,11 @@ struct ARRouteCameraView: UIViewRepresentable {
         }
     }
 }
+
+#Preview {
+    ARRouteCameraView(
+        points: PreviewData.trackPoints,
+        instruction: .constant("Point at a flat surface and tap"),
+        isPlaced: .constant(false)
+    )
+}

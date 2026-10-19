@@ -143,3 +143,14 @@ struct RoutesView: View {
         )
     }
 }
+
+#Preview {
+    RoutesView(
+        viewModel: PreviewFactory.routesViewModel(),
+        makeRouteDetailViewModel: { _ in
+            PreviewFactory.routeDetailViewModel()
+        },
+        showSignOut: true,
+        onSignOut: {}
+    )
+}

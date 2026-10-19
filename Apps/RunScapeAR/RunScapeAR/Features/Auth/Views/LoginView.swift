@@ -59,3 +59,9 @@ struct LoginView: View {
         }
     }
 }
+
+#Preview {
+    LoginView(
+        viewModel: PreviewFactory.authViewModel()
+    )
+}

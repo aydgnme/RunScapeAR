@@ -218,3 +218,11 @@ struct RouteDetailView: View {
         )
     }
 }
+
+#Preview {
+    NavigationStack {
+        RouteDetailView(
+            viewModel: PreviewFactory.routeDetailViewModel()
+        )
+    }
+}

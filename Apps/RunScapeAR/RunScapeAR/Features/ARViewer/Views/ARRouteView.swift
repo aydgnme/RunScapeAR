@@ -50,3 +50,9 @@ struct ARRouteView: View {
         }
     }
 }
+
+#Preview {
+    ARRouteView(
+        points: PreviewData.trackPoints
+    )
+}
