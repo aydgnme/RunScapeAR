@@ -4,20 +4,46 @@ import SwiftUI
 struct ARRouteView: View {
     let points: [TrackPoint]
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var instruction =
-        "Point at a flat surface and tap"
+        "Point at a flat surface"
     @State private var isPlaced = false
+    @State private var surfaceReady = false
+    @State private var resetRequestID = 0
+    @State private var isActive = true
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
+            arContent
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            isActive = newPhase == .active
+        }
+    }
+
+    private var arContent: some View {
+        ZStack {
             ARRouteCameraView(
                 points: points,
+                resetRequestID: resetRequestID,
+                isActive: isActive,
                 instruction: $instruction,
-                isPlaced: $isPlaced
+                isPlaced: $isPlaced,
+                surfaceReady: $surfaceReady
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 12) {
+            if !isPlaced {
+                Circle()
+                    .stroke(
+                        surfaceReady ? Color.green : Color.white,
+                        lineWidth: 2
+                    )
+                    .frame(width: 24, height: 24)
+                    .opacity(0.8)
+            }
+
+            VStack {
                 Text(instruction)
                     .font(.headline)
                     .multilineTextAlignment(.center)
@@ -30,7 +56,7 @@ struct ARRouteView: View {
 
                 if isPlaced {
                     Button {
-                        isPlaced = false
+                        resetRequestID += 1
                     } label: {
                         Label(
                             "Reposition Route",
@@ -45,6 +71,8 @@ struct ARRouteView: View {
                         )
                     }
                 }
+
+                Spacer()
             }
             .padding(.top, 16)
         }

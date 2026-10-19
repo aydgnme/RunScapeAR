@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2700"
+   LastUpgradeVersion = "2710"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -52,7 +52,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "STRAVA_ACCESS_TOKEN"
-            value = "d388fa6159e28ccb9d4ed60fd8067239c354702d"
+            value = "1e3309813fc07072d7352bde204415eca60df7dc"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

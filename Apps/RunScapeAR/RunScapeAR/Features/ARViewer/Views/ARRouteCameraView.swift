@@ -1,41 +1,37 @@
 import ARKit
 import Domain
 import Platform
-import RealityKit
+import SceneKit
 import SwiftUI
 
 @MainActor
 struct ARRouteCameraView: UIViewRepresentable {
     let points: [TrackPoint]
+    let resetRequestID: Int
+    let isActive: Bool
 
     @Binding var instruction: String
     @Binding var isPlaced: Bool
+    @Binding var surfaceReady: Bool
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator(
+    func makeCoordinator() -> ARRouteCameraCoordinator {
+        ARRouteCameraCoordinator(
             points: points,
             instruction: $instruction,
-            isPlaced: $isPlaced
+            isPlaced: $isPlaced,
+            surfaceReady: $surfaceReady
         )
     }
 
-    func makeUIView(
-        context: Context
-    ) -> ARView {
-        let arView = ARView(
-            frame: .zero,
-            cameraMode: .ar,
-            automaticallyConfigureSession: false
-        )
+    func makeUIView(context: Context) -> ARSCNView {
+        let scnView = ARSCNView(frame: .zero)
+        scnView.automaticallyUpdatesLighting = true
 
         let configuration =
             ARWorldTrackingConfiguration()
+        configuration.planeDetection = [.horizontal]
 
-        configuration.planeDetection = [
-            .horizontal
-        ]
-
-        arView.session.run(
+        scnView.session.run(
             configuration,
             options: [
                 .resetTracking,
@@ -43,153 +39,64 @@ struct ARRouteCameraView: UIViewRepresentable {
             ]
         )
 
-        let tapGesture = UITapGestureRecognizer(
+        let coaching = ARCoachingOverlayView()
+        coaching.session = scnView.session
+        coaching.goal = .horizontalPlane
+        coaching.activatesAutomatically = true
+        coaching.autoresizingMask = [
+            .flexibleWidth, .flexibleHeight
+        ]
+        scnView.addSubview(coaching)
+
+        let tap = UITapGestureRecognizer(
             target: context.coordinator,
             action: #selector(
-                Coordinator.handleTap(_:)
+                ARRouteCameraCoordinator.handleTap(_:)
             )
         )
+        scnView.addGestureRecognizer(tap)
 
-        arView.addGestureRecognizer(
-            tapGesture
-        )
+        context.coordinator.scnView = scnView
+        context.coordinator.startScanning()
 
-        context.coordinator.arView =
-            arView
-
-        return arView
+        return scnView
     }
 
     func updateUIView(
-        _ uiView: ARView,
+        _ uiView: ARSCNView,
         context: Context
     ) {
-        context.coordinator.handleReset()
+        let coordinator = context.coordinator
+
+        if resetRequestID != coordinator.lastProcessedResetID {
+            coordinator.lastProcessedResetID =
+                resetRequestID
+            Task { @MainActor in
+                coordinator.handleReposition()
+            }
+        }
+
+        coordinator.handleActiveChange(
+            isActive, scnView: uiView
+        )
     }
 
     static func dismantleUIView(
-        _ uiView: ARView,
-        coordinator: Coordinator
+        _ uiView: ARSCNView,
+        coordinator: ARRouteCameraCoordinator
     ) {
+        coordinator.stopAll()
         uiView.session.pause()
-    }
-
-    @MainActor
-    final class Coordinator: NSObject {
-        weak var arView: ARView?
-
-        private let points: [TrackPoint]
-        private var instruction: Binding<String>
-        private var isPlaced: Binding<Bool>
-        private var currentAnchor: AnchorEntity?
-        private var pendingReset = false
-
-        init(
-            points: [TrackPoint],
-            instruction: Binding<String>,
-            isPlaced: Binding<Bool>
-        ) {
-            self.points = points
-            self.instruction = instruction
-            self.isPlaced = isPlaced
-        }
-
-        @objc
-        func handleTap(
-            _ gesture: UITapGestureRecognizer
-        ) {
-            guard
-                !isPlaced.wrappedValue,
-                let arView
-            else {
-                return
-            }
-
-            let location = gesture.location(
-                in: arView
-            )
-
-            guard let result =
-                arView.raycast(
-                    from: location,
-                    allowing: .existingPlaneInfinite,
-                    alignment: .horizontal
-                ).first
-            else {
-                instruction.wrappedValue =
-                    "No surface detected. Try again."
-                return
-            }
-
-            placeRoute(
-                using: result
-            )
-        }
-
-        func handleReset() {
-            guard
-                !isPlaced.wrappedValue,
-                currentAnchor != nil
-            else {
-                return
-            }
-
-            removeRoute()
-        }
-
-        private func placeRoute(
-            using result: ARRaycastResult
-        ) {
-            guard let arView else {
-                return
-            }
-
-            let anchor = AnchorEntity(
-                world: result.worldTransform
-            )
-
-            let routeEntity =
-                RouteSceneBuilder()
-                    .makeEntity(
-                        from: points
-                    )
-
-            anchor.addChild(
-                routeEntity
-            )
-
-            arView.scene.addAnchor(
-                anchor
-            )
-
-            currentAnchor = anchor
-            isPlaced.wrappedValue = true
-
-            instruction.wrappedValue =
-                "Route placed"
-        }
-
-        private func removeRoute() {
-            guard let arView, let anchor = currentAnchor else {
-                return
-            }
-
-            arView.scene.removeAnchor(
-                anchor
-            )
-
-            currentAnchor = nil
-
-            instruction.wrappedValue =
-                "Tap a surface to place the route"
-        }
     }
 }
 
 #Preview {
     ARRouteCameraView(
         points: PreviewData.trackPoints,
-        instruction: .constant("Point at a flat surface and tap"),
-        isPlaced: .constant(false)
+        resetRequestID: 0,
+        isActive: true,
+        instruction: .constant("Route placed"),
+        isPlaced: .constant(false),
+        surfaceReady: .constant(false)
     )
 }

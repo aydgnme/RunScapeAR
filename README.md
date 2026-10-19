@@ -3,7 +3,7 @@
 <p align="left">
   <img src="https://img.shields.io/badge/Swift-6-orange?logo=swift" alt="Swift 6">
   <img src="https://img.shields.io/badge/iOS-17%2B-black?logo=apple" alt="iOS 17+">
-  <img src="https://img.shields.io/badge/ARKit-RealityKit-blue" alt="ARKit + RealityKit">
+  <img src="https://img.shields.io/badge/ARKit-SceneKit-blue" alt="ARKit + SceneKit">
   <img src="https://img.shields.io/badge/Architecture-Clean%20Architecture-green" alt="Clean Architecture">
 </p>
 
@@ -11,7 +11,7 @@
 
 RunScape AR is a native iOS application that transforms Strava routes into interactive 3D models and augmented reality experiences.
 
-A route fetched from Strava is converted from geographic coordinates into local 3D geometry, normalized for tabletop visualization, rendered with RealityKit, and optionally placed on a real-world surface using ARKit.
+A route fetched from Strava is converted from geographic coordinates into local 3D geometry, normalized for tabletop visualization, rendered with RealityKit (3D preview) and SceneKit (AR), and placed on a real-world surface using ARKit with automatic surface detection and scaling.
 
 ## Demo
 
@@ -41,7 +41,9 @@ The same route geometry can be placed on a detected real-world horizontal surfac
 - Route and activity stream decoding
 - Route elevation statistics (ascent, descent, gradient, altitude range)
 - Interactive 3D route preview with orbit and zoom
-- Augmented Reality route placement with reposition support
+- Augmented Reality tabletop placement with auto-scaling and reposition
+- ARCoachingOverlayView onboarding
+- Surface detection state machine with visual indicator
 - Elevation-aware route geometry
 - Clean Architecture with Swift Package Manager modularization
 - Unit and opt-in integration tests
@@ -53,7 +55,8 @@ The same route geometry can be placed on a detected real-world horizontal surfac
 - Swift 6
 - SwiftUI
 - ARKit
-- RealityKit
+- SceneKit (AR rendering)
+- RealityKit (3D preview)
 - Observation
 - URLSession
 - Swift Package Manager
@@ -82,10 +85,13 @@ flowchart TD
     StravaAPI[Strava API]
 
     SceneBuilder[RouteSceneBuilder]
+    SCNBuilder[SceneKitRouteSceneBuilder]
     Projector[TrackPointProjector]
     Normalizer[RouteNormalizer]
     Segments[RouteSegmentBuilder]
     RealityKit[RealityKitRouteFactory]
+    SceneKit[SceneKitRouteFactory]
+    Fitter[SurfaceFitter]
 
     App --> RoutesView
     RoutesView --> RoutesVM
@@ -101,10 +107,14 @@ flowchart TD
     StravaClient --> StravaAPI
 
     DetailVM --> SceneBuilder
+    DetailVM --> SCNBuilder
     SceneBuilder --> Projector
+    SCNBuilder --> Projector
     Projector --> Normalizer
     Normalizer --> Segments
     Segments --> RealityKit
+    Segments --> SceneKit
+    SCNBuilder --> Fitter
 ```
 
 ```text
@@ -176,9 +186,10 @@ RouteNormalizer
     ↓
 RouteSegmentBuilder
     ↓
-RealityKitRouteFactory
+RealityKitRouteFactory → Entity (3D preview)
+SceneKitRouteFactory   → SCNNode (AR)
     ↓
-Entity
+SurfaceFitter (auto-scale route to detected surface)
 ```
 
 Responsibilities include:
@@ -186,7 +197,9 @@ Responsibilities include:
 - Geographic coordinate projection
 - Route normalization
 - 3D geometry generation
-- RealityKit rendering
+- RealityKit rendering (3D preview)
+- SceneKit rendering (AR placement)
+- Surface fitting and auto-scaling
 - AR route scene construction
 
 ## 3D Route Pipeline
@@ -200,9 +213,12 @@ flowchart LR
     E --> F[RouteSegmentBuilder]
     F --> G[RouteSegment]
     G --> H[RealityKitRouteFactory]
+    G --> S[SceneKitRouteFactory]
     H --> I[RealityKit Entity]
+    S --> N[SCNNode]
     I --> J[3D Preview]
-    I --> K[AR Placement]
+    N --> K[AR Placement]
+    K --> SF[SurfaceFitter]
 ```
 
 ## Application Flow
@@ -218,11 +234,13 @@ Interactive 3D Preview
   ↓
 View in AR
   ↓
-ARKit Surface Detection
+ARCoachingOverlay + Surface Detection
   ↓
-Tap Surface
+SurfaceFitter auto-scales to table
   ↓
-3D Route Placement
+Auto-place after 1.5s / Tap to place
+  ↓
+Stable SceneKit Route on Surface
 ```
 
 ## Development Setup
@@ -367,8 +385,12 @@ Implemented:
 - [x] Activity repositories
 - [x] Route and activity stream parsing
 - [x] Interactive 3D route preview
-- [x] AR route placement
+- [x] AR route placement (SceneKit + ARSCNView)
 - [x] AR route reposition
+- [x] AR surface auto-detection and auto-placement
+- [x] SurfaceFitter tabletop auto-scaling
+- [x] ARCoachingOverlayView onboarding
+- [x] AR session lifecycle management (background/foreground)
 - [x] Route elevation statistics
 - [x] Route detail UI with statistics
 - [x] Strava OAuth login
