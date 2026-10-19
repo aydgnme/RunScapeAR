@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Format, Lint & Tests
+    runs-on: xcode-27
+
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install SwiftFormat and SwiftLint
+        run: |
+          brew install swiftformat swiftlint
+
+      - name: Check formatting
+        run: |
+          ./Scripts/check-format.sh
+
+      - name: Run SwiftLint
+        run: |
+          ./Scripts/lint.sh
+
+      - name: Test Domain
+        run: |
+          swift test \
+            --package-path Packages/Domain
+
+      - name: Test DataLayer
+        run: |
+          swift test \
+            --package-path Packages/DataLayer
+
+      - name: Test Platform
+        run: |
+          swift test \
+            --package-path Packages/Platform
